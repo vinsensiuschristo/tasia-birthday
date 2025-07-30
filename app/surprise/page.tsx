@@ -14,7 +14,7 @@ export default function SurprisePage() {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Ganti dengan tanggal yang diinginkan
-  const targetDate = new Date("2024-08-02T12:00:00"); // Ganti dengan tanggal yang diinginkan
+  const targetDate = new Date("2025-08-02T12:00:00"); // Ganti dengan tanggal yang diinginkan
 
   useEffect(() => {
     const timer = setInterval(() => {
