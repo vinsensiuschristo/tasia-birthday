@@ -1,12 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import type React from "react";
+
+import { useState, useEffect, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, Edit3, Printer, Heart } from "lucide-react";
 import Link from "next/link";
+import {
+  getTodos,
+  addTodo,
+  toggleTodo,
+  updateTodo,
+  deleteTodo,
+} from "@/app/actions";
 
 interface TodoItem {
   id: string;
@@ -17,81 +26,48 @@ interface TodoItem {
 
 export default function TodoListPage() {
   const [todos, setTodos] = useState<TodoItem[]>([]);
-  const [newTodo, setNewTodo] = useState("");
+  const [newTodoText, setNewTodoText] = useState("");
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    const savedTodos = localStorage.getItem("bogor-todos");
-    if (savedTodos) {
-      setTodos(JSON.parse(savedTodos));
-    } else {
-      // Default Bogor activities
-      const defaultTodos = [
-        {
-          id: "1",
-          text: "Jalan-jalan di Kebun Raya Bogor 🌿",
-          completed: false,
-          isEditing: false,
-        },
-        {
-          id: "2",
-          text: "Foto di depan Istana Bogor 🏰",
-          completed: false,
-          isEditing: false,
-        },
-        {
-          id: "3",
-          text: "Makan soto Bogor yang enak 🍲",
-          completed: false,
-          isEditing: false,
-        },
-        {
-          id: "4",
-          text: "Beli oleh-oleh khas Bogor 🎁",
-          completed: false,
-          isEditing: false,
-        },
-        {
-          id: "5",
-          text: "Naik delman keliling kota 🐴",
-          completed: false,
-          isEditing: false,
-        },
-      ];
-      setTodos(defaultTodos);
-      localStorage.setItem("bogor-todos", JSON.stringify(defaultTodos));
-    }
+    // Fetch initial todos on component mount
+    startTransition(async () => {
+      const initialTodos = await getTodos();
+      setTodos(initialTodos.map((todo) => ({ ...todo, isEditing: false })));
+    });
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("bogor-todos", JSON.stringify(todos));
-  }, [todos]);
-
-  const addTodo = () => {
-    if (newTodo.trim()) {
-      const newItem: TodoItem = {
-        id: Date.now().toString(),
-        text: newTodo,
-        completed: false,
-        isEditing: false,
-      };
-      setTodos([...todos, newItem]);
-      setNewTodo("");
+  const handleAddTodo = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (newTodoText.trim()) {
+      const formData = new FormData();
+      formData.append("text", newTodoText);
+      startTransition(async () => {
+        await addTodo(formData);
+        const updatedTodos = await getTodos();
+        setTodos(updatedTodos.map((todo) => ({ ...todo, isEditing: false })));
+        setNewTodoText("");
+      });
     }
   };
 
-  const toggleTodo = (id: string) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+  const handleToggleTodo = async (id: string, completed: boolean) => {
+    startTransition(async () => {
+      await toggleTodo(id, completed);
+      const updatedTodos = await getTodos();
+      setTodos(updatedTodos.map((todo) => ({ ...todo, isEditing: false })));
+    });
   };
 
-  const deleteTodo = (id: string) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+  const handleDeleteTodo = async (id: string) => {
+    startTransition(async () => {
+      await deleteTodo(id);
+      const updatedTodos = await getTodos();
+      setTodos(updatedTodos.map((todo) => ({ ...todo, isEditing: false })));
+    });
   };
 
-  const startEdit = (id: string) => {
+  const handleStartEdit = (id: string) => {
     setTodos(
       todos.map((todo) =>
         todo.id === id ? { ...todo, isEditing: true } : todo
@@ -99,12 +75,12 @@ export default function TodoListPage() {
     );
   };
 
-  const saveEdit = (id: string, newText: string) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, text: newText, isEditing: false } : todo
-      )
-    );
+  const handleSaveEdit = async (id: string, newText: string) => {
+    startTransition(async () => {
+      await updateTodo(id, newText);
+      const updatedTodos = await getTodos();
+      setTodos(updatedTodos.map((todo) => ({ ...todo, isEditing: false })));
+    });
   };
 
   const completedCount = todos.filter((todo) => todo.completed).length;
@@ -134,7 +110,7 @@ export default function TodoListPage() {
       <div className="container mx-auto px-4 py-8 relative z-10">
         <div className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-green-800 mb-4 drop-shadow-lg">
-            Tasia Day List
+            🌿 Bogor Adventure List 🌿
           </h1>
         </div>
 
@@ -167,21 +143,23 @@ export default function TodoListPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-2">
+              <form onSubmit={handleAddTodo} className="flex gap-2">
                 <Input
-                  value={newTodo}
-                  onChange={(e) => setNewTodo(e.target.value)}
+                  name="text"
+                  value={newTodoText}
+                  onChange={(e) => setNewTodoText(e.target.value)}
                   placeholder="Mau ngapain lagi di Bogor? 🤔"
-                  onKeyPress={(e) => e.key === "Enter" && addTodo()}
                   className="border-green-300 focus:border-pink-400"
+                  disabled={isPending}
                 />
                 <Button
-                  onClick={addTodo}
+                  type="submit"
                   className="bg-gradient-to-r from-green-400 to-pink-400 hover:from-green-500 hover:to-pink-500"
+                  disabled={isPending}
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
-              </div>
+              </form>
             </CardContent>
           </Card>
 
@@ -190,70 +168,89 @@ export default function TodoListPage() {
               <CardTitle className="text-green-800">Daftar Kegiatan</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {todos.map((todo) => (
-                <div
-                  key={todo.id}
-                  className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-lg border-2 transition-all duration-300 ${
-                    todo.completed
-                      ? "bg-green-50 border-green-200 opacity-75"
-                      : "bg-white border-pink-200 hover:border-pink-300"
-                  }`}
-                >
-                  <div className="flex items-center gap-3 flex-1 w-full sm:w-auto">
-                    <Checkbox
-                      checked={todo.completed}
-                      onCheckedChange={() => toggleTodo(todo.id)}
-                      className="data-[state=checked]:bg-green-500 flex-shrink-0"
-                    />
-
-                    {todo.isEditing ? (
-                      <Input
-                        defaultValue={todo.text}
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            saveEdit(
-                              todo.id,
-                              (e.target as HTMLInputElement).value
-                            );
-                          }
-                        }}
-                        onBlur={(e) => saveEdit(todo.id, e.target.value)}
-                        className="flex-1"
-                        autoFocus
+              {todos.length === 0 && !isPending ? (
+                <p className="text-center text-gray-500">
+                  Tidak ada kegiatan. Tambahkan yang baru!
+                </p>
+              ) : (
+                todos.map((todo) => (
+                  <div
+                    key={todo.id}
+                    className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-lg border-2 transition-all duration-300 ${
+                      todo.completed
+                        ? "bg-green-50 border-green-200 opacity-75"
+                        : "bg-white border-pink-200 hover:border-pink-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 flex-1 w-full sm:w-auto">
+                      <Checkbox
+                        checked={todo.completed}
+                        onCheckedChange={() =>
+                          handleToggleTodo(todo.id, todo.completed)
+                        }
+                        className="data-[state=checked]:bg-green-500 flex-shrink-0"
+                        disabled={isPending}
                       />
-                    ) : (
-                      <span
-                        className={`flex-1 ${
-                          todo.completed
-                            ? "line-through text-green-600"
-                            : "text-gray-800"
-                        }`}
-                      >
-                        {todo.text}
-                      </span>
-                    )}
-                  </div>
 
-                  <div className="flex gap-1 w-full sm:w-auto justify-end">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => startEdit(todo.id)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteTodo(todo.id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                      {todo.isEditing ? (
+                        <Input
+                          defaultValue={todo.text}
+                          onKeyPress={(e) => {
+                            if (e.key === "Enter") {
+                              handleSaveEdit(
+                                todo.id,
+                                (e.target as HTMLInputElement).value
+                              );
+                            }
+                          }}
+                          onBlur={(e) =>
+                            handleSaveEdit(todo.id, e.target.value)
+                          }
+                          className="flex-1"
+                          autoFocus
+                          disabled={isPending}
+                        />
+                      ) : (
+                        <span
+                          className={`flex-1 ${
+                            todo.completed
+                              ? "line-through text-green-600"
+                              : "text-gray-800"
+                          }`}
+                        >
+                          {todo.text}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex gap-1 w-full sm:w-auto justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleStartEdit(todo.id)}
+                        className="text-blue-600 hover:text-blue-800"
+                        disabled={isPending}
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteTodo(todo.id)}
+                        className="text-red-600 hover:text-red-800"
+                        disabled={isPending}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
+                ))
+              )}
+              {isPending && (
+                <div className="text-center text-gray-500">
+                  <p>Loading...</p>
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
 
@@ -261,7 +258,7 @@ export default function TodoListPage() {
             <Link href="/print">
               <Button className="w-full sm:w-auto bg-gradient-to-r from-blue-400 to-purple-400 hover:from-blue-500 hover:to-purple-500 text-white">
                 <Printer className="w-4 h-4 mr-2" />
-                Print
+                Print untuk Foto
               </Button>
             </Link>
             <Link href="/surprise">
