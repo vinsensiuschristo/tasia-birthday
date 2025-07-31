@@ -75,16 +75,16 @@ export default function PrintPage() {
               </CardHeader>
               <CardContent className="p-4 sm:p-6 print:p-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 print:gap-2">
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg h-24 sm:h-32 print:h-24 flex items-center justify-center bg-gray-50">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg h-64 sm:h-72 print:h-64 flex items-center justify-center bg-gray-50">
                     <span className="text-gray-400 text-xs sm:text-sm print:text-xs">Foto</span>
                   </div>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg h-24 sm:h-32 print:h-24 flex items-center justify-center bg-gray-50">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg h-64 sm:h-72 print:h-64 flex items-center justify-center bg-gray-50">
                     <span className="text-gray-400 text-xs sm:text-sm print:text-xs">Foto</span>
                   </div>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg h-24 sm:h-32 print:h-24 flex items-center justify-center bg-gray-50">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg h-64 sm:h-72 print:h-64 flex items-center justify-center bg-gray-50">
                     <span className="text-gray-400 text-xs sm:text-sm print:text-xs">Foto</span>
                   </div>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg h-24 sm:h-32 print:h-24 flex items-center justify-center bg-gray-50">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg h-64 sm:h-72 print:h-64 flex items-center justify-center bg-gray-50">
                     <span className="text-gray-400 text-xs sm:text-sm print:text-xs">Foto</span>
                   </div>
                 </div>
