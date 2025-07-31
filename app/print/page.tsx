@@ -59,11 +59,6 @@ export default function PrintPage() {
             <span className="font-medium text-sm sm:text-base">Made with Love</span>
             <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
           </div>
-          <div className="no-print bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
-            <p className="text-sm text-blue-700">
-              📋 Urutan kegiatan di halaman print ini mengikuti urutan yang kamu atur di halaman utama!
-            </p>
-          </div>
         </div>
 
         <div className="grid gap-6 print:gap-4">
@@ -93,55 +88,9 @@ export default function PrintPage() {
                     <span className="text-gray-400 text-xs sm:text-sm print:text-xs">Foto</span>
                   </div>
                 </div>
-
-                {/* Notes section */}
-                <div className="mt-4 border-t border-gray-200 pt-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Catatan & Kenangan:</h4>
-                  <div className="border border-dashed border-gray-300 rounded p-3 min-h-[60px] bg-gray-50">
-                    <div className="text-gray-400 text-xs">Tulis kenangan indah kalian di sini...</div>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           ))}
-        </div>
-
-        {/* Summary section */}
-        <div className="mt-8 print:mt-6">
-          <Card className="border-2 border-pink-200">
-            <CardHeader className="bg-gradient-to-r from-pink-50 to-purple-50 print:bg-gray-50">
-              <CardTitle className="text-pink-800 print:text-black text-center">📊 Ringkasan Adventure</CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 print:p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                <div className="bg-green-50 print:bg-gray-50 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600 print:text-black">{todos.length}</div>
-                  <div className="text-sm text-gray-600">Total Kegiatan</div>
-                </div>
-                <div className="bg-blue-50 print:bg-gray-50 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600 print:text-black">
-                    {todos.filter((t) => t.completed).length}
-                  </div>
-                  <div className="text-sm text-gray-600">Sudah Selesai</div>
-                </div>
-                <div className="bg-yellow-50 print:bg-gray-50 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-yellow-600 print:text-black">
-                    {todos.filter((t) => !t.completed).length}
-                  </div>
-                  <div className="text-sm text-gray-600">Belum Selesai</div>
-                </div>
-              </div>
-
-              <div className="mt-6 border-t border-gray-200 pt-4">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Kesan & Pesan Adventure:</h4>
-                <div className="border border-dashed border-gray-300 rounded p-4 min-h-[80px] bg-gray-50">
-                  <div className="text-gray-400 text-xs">
-                    Bagaimana kesan kalian tentang adventure di Bogor ini? Tulis di sini...
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
 
