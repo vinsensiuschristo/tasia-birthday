@@ -202,7 +202,7 @@ export default function TodoListPage() {
             <CardHeader>
               <CardTitle className="text-green-800 flex items-center gap-2">
                 <GripVertical className="w-5 h-5" />
-                Daftar Kegiatan (Drag untuk Mengatur Urutan)
+                Daftar Kegiatan
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
